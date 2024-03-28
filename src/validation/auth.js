@@ -8,4 +8,9 @@ const registerValidate = Joi.object({
     role: Joi.string().default("member")
 }).options({ abortEarly: false });
 
-export default registerValidate
+const loginValidate = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+}).options({ abortEarly: false });
+
+export { registerValidate, loginValidate}

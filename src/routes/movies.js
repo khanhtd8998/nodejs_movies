@@ -1,5 +1,6 @@
 import express from 'express';
 import MoviesController from '../controllers/movies.js';
+import checkPermission from '../middleware/checkPermission.js';
 const moviesController = new MoviesController();
 const movieRouter = express.Router();
 

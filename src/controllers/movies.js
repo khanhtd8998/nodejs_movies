@@ -1,4 +1,5 @@
 import Movie from "../models/MovieModel.js";
+import movieValidate from "../validation/movies.js";
 class MoviesController {
     async getAll(req, res) {
         try {
@@ -41,6 +42,11 @@ class MoviesController {
 
     async create(req, res) {
         try {
+            const { error } = movieValidate.validate(req.body)
+            if(error) {
+                const errors = error.details.map(err => err.message)
+                return res.status(400).json({message: errors})
+            }
             const movie = await Movie.create(req.body);
             if (!movie) {
                 return res.status(404).json({
@@ -60,6 +66,7 @@ class MoviesController {
 
     async update(req, res) {
         try {
+            
             const movie = await Movie.findByIdAndUpdate(req.params.id, req.body, {
                 new: true
             });
