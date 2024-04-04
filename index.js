@@ -1,8 +1,8 @@
 import express from "express";
-import router from "./routes/index.js";
-import connectMongoDB from "./ultils/connect.js";
-import { PORT } from "./ultils/env.js";
-import { errorHandler, errorHandlerNotFound } from "./ultils/errorHandler.js";
+import router from "./src/routes/index.js";
+import connectMongoDB from "./src/ultils/connect.js";
+import { PORT } from "./src/ultils/env.js";
+import { errorHandler, errorHandlerNotFound } from "./src/ultils/errorHandler.js";
 
 const app = express();
 app.use(express.json());
