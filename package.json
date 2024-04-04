@@ -5,7 +5,8 @@
     "main": "src/server.js",
     "type": "module",
     "scripts": {
-        "start": "nodemon index.js",
+        "start": "nodemon ./src/server.js",
+        "vercel": "nodemon index.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "vite"
     },
