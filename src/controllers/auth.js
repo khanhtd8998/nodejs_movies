@@ -1,69 +1,55 @@
 import User from "../models/UserModel.js"
-import bcryptjs from "bcryptjs"
-import {registerValidate, loginValidate} from "../validation/auth.js"
-import  Jwt  from "jsonwebtoken"
+import { comparePassword, hashPassword } from "../ultils/hashPassword.js"
+import { errorMessages, successMessages } from "../constants/message.js"
+import { generateToken } from "../ultils/jwt.js"
 class AuthController {
-    async register(req, res) {
+    async register(req, res, next) {
         try {
             const { email, password } = req.body
-            const { error } = registerValidate.validate(req.body);
-            if (error) {
-                const errors = error.details.map(err => err.message);
-                return res.status(404).json({ messages: errors });
-            }
             const checkEmail = await User.findOne({
                 email: email,
             })
             if (checkEmail) {
-                return res.status(400).json({ messages: "Email đã tồn tại" })
+                return res.status(400).json({ messages: errorMessages.EMAIL_EXISTED})
             }
-            const salt = await bcryptjs.genSalt(10);
-            const hashPassword = await bcryptjs.hash(password, salt);
-            const user = await User.create({...req.body, password: hashPassword })
+            const hashPass = await hashPassword(password)
+            const user = await User.create({...req.body, password: hashPass })
             if (!user)
                 return res.status(400).json({
-                    messages: "Tạo tài khoản thất bại"
+                    messages: errorMessages.REGISTER_FAILED
                 })
             user.password = undefined;
             return res.status(200).json({
-                messages: "Success",
+                message: successMessages.REGISTER_SUCCESS,
                 data: user
             })
         } catch (error) {
-            return res.status(500).json({
-                message: error.message
-            })
+            next(error)
         }
     }
 
-    async login(req, res) {
+    async login(req, res, next) {
         try {
             const { email, password } = req.body
-            const { error } = loginValidate.validate(req.body);
-            if (error) {
-                const errors = error.details.map(err => err.message);
-                return res.status(404).json({ messages: errors });
-            }
             const user = await User.findOne({
                 email: email,
             })
             if (!user) {
-                return res.status(400).json({ messages: "Tài khoản không tồn tại" })
+                return res.status(400).json({ messages: errorMessages.NOT_FOUND })
             }
    
-            const checkPassword = bcryptjs.compare(password, user.password)
-            if(!checkPassword) return res.status(400).json({ messages: "Mật khẩu không đúng" })
-            const token = Jwt.sign({id: user._id}, 'key', {expiresIn: "60"})
+            if (!(await comparePassword(password, user.password))) {
+                return res.status(400).json({ message: errorMessages.INVALID_PASSWORD });
+              }
+            const token = generateToken({_id: user.id}, "10d")
             user.password = undefined;
             return res.status(200).json({
-                messages: "Success",
+                messages: successMessages.LOGIN_SUCCESS,
                 data: user,
                 token
             })
         } catch (error) {
-            return res.status(500).json({
-                message: error.message
-            })
+            next(error);
         }
     }
 }

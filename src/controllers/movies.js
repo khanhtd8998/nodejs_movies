@@ -1,46 +1,43 @@
+import { errorMessages, successMessages } from "../constants/message.js";
 import Movie from "../models/MovieModel.js";
 import movieValidate from "../validation/movies.js";
 class MoviesController {
-    async getAll(req, res) {
+    async getAll(req, res, next) {
         try {
             const movies = await Movie.find().populate(["category", "genres"]);
             if (movies.length == 0) {
                 return res.status(404).json({
-                    message: "Khong tim thay danh sach phim"
+                    message: errorMessages.NOT_FOUND
                 });
             }
             return res.status(200).json({
-                message: "Lay danh sach phim thanh cong",
+                message: successMessages.GET_DATA_SUCCESS,
                 data: movies
             })
         } catch (error) {
-            return res.status(404).json({
-                message: 'error',
-            })
+            next(error);
         }
     }
 
-    async getDetail(req, res) {
+    async getDetail(req, res, next) {
         try {
             const movie = await Movie.findById(req.params.id).populate(["category", "genres"]);
             if (!movie) {
                 return res.status(404).json({
-                    message: "Lay phim that bai",
+                    message: errorMessages.NOT_FOUND,
                 });
             }
             return res.status(200).json({
-                message: "Lay phim thanh cong",
+                message: successMessages.GET_DATA_SUCCESS,
                 data: movie
 
             })
         } catch (error) {
-            return res.status(404).json({
-                message: 'error',
-            })
+            next(error)
         }
     }
 
-    async create(req, res) {
+    async create(req, res, next) {
         try {
             const { error } = movieValidate.validate(req.body)
             if(error) {
@@ -50,21 +47,19 @@ class MoviesController {
             const movie = await Movie.create(req.body);
             if (!movie) {
                 return res.status(404).json({
-                    message: "Tao phim that bai"
+                    message: errorMessages.CREATE_FAIL
                 });
             }
             return res.status(201).json({
-                message: "Tao phim thanh cong",
+                message: successMessages.CREATE_DATA_SUCCESS,
                 data: movie
             })
         } catch (error) {
-            return res.status(404).json({
-                menubar: 'error',
-            })
+            next(error)
         }
     }
 
-    async update(req, res) {
+    async update(req, res, next) {
         try {
             
             const movie = await Movie.findByIdAndUpdate(req.params.id, req.body, {
@@ -72,38 +67,34 @@ class MoviesController {
             });
             if (!movie) {
                 return res.status(404).json({
-                    message: "Cap nhat phim that bai",
+                    message: errorMessages.UPDATE_FAIL,
                 });
             }
             return res.status(200).json({
-                message: "Cap nhat phim thanh cong",
+                message: successMessages.UPDATE_DATA_SUCCESS,
                 data: movie
 
             })
         } catch (error) {
-            return res.status(404).json({
-                message: 'error',
-            })
+            next(error)
         }
     }
 
-    async remove(req, res) {
+    async remove(req, res, next) {
         try {
             const movie = await Movie.findByIdAndDelete(req.params.id);
             if (!movie) {
                 return res.status(404).json({
-                    message: "Xoa phim that bai",
+                    message: errorMessages.DELETE_FAIL,
                 });
             }
             return res.status(200).json({
-                message: "Xoa phim thanh cong",
+                message: successMessages.DELETE_DATA_SUCCESS,
                 data: movie
 
             })
         } catch (error) {
-            return res.status(404).json({
-                message: 'error',
-            })
+            next(error)
         }
     }
 }

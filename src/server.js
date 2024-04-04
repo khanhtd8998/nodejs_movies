@@ -1,19 +1,20 @@
 import express from "express";
-import dotenv from "dotenv";
 import router from "./routes/index.js";
-import connectMongoDB from "../config/dbconfig.js";
-dotenv.config();
+import connectMongoDB from "./ultils/connect.js";
+import { PORT } from "./ultils/env.js";
+import { errorHandler, errorHandlerNotFound } from "./ultils/errorHandler.js";
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+connectMongoDB()
 
-const port = process.env.PORT || 3000;
-const URL_DB = process.env.URL_DB
-connectMongoDB(URL_DB)
 app.use('/api', router)
-app.listen(port, () => {
-    console.log("connecting to port " + port);
+app.use(errorHandlerNotFound, errorHandler);
+
+app.listen(PORT, () => {
+    console.log("Connecting to port " + PORT);
 })
 
-// export const viteNodeApp = app;
+;

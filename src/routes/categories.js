@@ -7,7 +7,9 @@ const categoryRouter = express.Router();
 
 categoryRouter.get("/", categoriesController.getAll)
 categoryRouter.get("/:id", categoriesController.getDetail)
-categoryRouter.post("/", checkPermission,  categoriesController.create)
+
+// categoryRouter.use(checkPermission)
+categoryRouter.post("/",  categoriesController.create)
 categoryRouter.put("/:id", categoriesController.update)
 categoryRouter.delete("/:id", categoriesController.remove)
 export default categoryRouter

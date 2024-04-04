@@ -1,16 +1,26 @@
+import { errorMessages } from "../constants/message.js";
 import User from "../models/UserModel.js";
-import  Jwt  from "jsonwebtoken";
-import dotenv from "dotenv"
+import { verifyToken } from "../ultils/jwt.js";
 const checkPermission = async (req, res, next) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
-        if(!token) return res.status(401).json({message: "Not authorized"});
-        const data = Jwt.decode(token,"key")
-        const user = await User.findById(data.id)
-        if(!user) return res.status(404).json({message: "Not found"});
+        if (!token) return res.status(401).json({ message: errorMessages.TOKEN_INVALID });
+        const data = verifyToken(token)
+        if (!data) {
+            return res.status(400).json({
+                message: errorMessages.TOKEN_INVALID,
+            });
+        }
+        const user = await User.findById(data._id)
+        if (user?.role !== "admin") {
+            return res.status(403).json({
+              message: errorMessages.PERMISSION_DENIED || "Permission denied!",
+            });
+          }
+        req.user = user;
         next()
     } catch (error) {
-        return res.json(500).json({ error: error.message });
+        next(error);
     }
 }
 export default checkPermission

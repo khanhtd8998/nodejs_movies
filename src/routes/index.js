@@ -9,6 +9,5 @@ router.use('/movies', movieRouter)
 router.use('/categories', categoryRouter)
 router.use('/genres', genreRouter)
 router.use('/auth', authRouter)
-router.use('/', (req, res) => res.end("Home"))
 
 export default router
