@@ -10,7 +10,7 @@ app.use(express.urlencoded({ extended: true }));
 
 connectMongoDB()
 
-app.use('/api', router)
+app.use('/', router)
 app.use(errorHandlerNotFound, errorHandler);
 
 app.listen(PORT, () => {
